@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Debug slideshare.js",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/slideshare.js",
+            "args": [
+                "-p", "134",
+                "-s", "2",
+                "-u", "https://image.slidesharecdn.com/4-191104091852/95/4-dental-waxes-and-dental-investments-[[[PAGE_NUM]]]-638.jpg?cb=1572859430",
+                "-v"
+            ]
+        }
+    ]
+}
