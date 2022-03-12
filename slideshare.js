@@ -20,7 +20,7 @@ function getStartPageArgument(argsArr) {
 }
 
 function getOutputFolderArgument(argsArr) {
-    return argsValue(argsArr, '-o', '--output', 'output');
+    return argsValue(argsArr, '-o', '--output', 'slideshare-output');
 }
 
 function getVerboseArgument(argsArr) {
@@ -46,15 +46,17 @@ const START_PAGE = getStartPageArgument(process.argv);
 if (getHelpArgument(process.argv) || NUM_PAGES === undefined || URL_PATTERN === undefined) {
     console.log(`
 Usage: 
-    ./slideshare.js [-h|--help] | -p|--pages NUM_PAGES | -u|--url-pattern URL_PATTERN | [-s|--start-page START_PAGE]
+    slideshare [-h|--help] | -p|--pages NUM_PAGES | -u|--url-pattern URL_PATTERN | [-s|--start-page START_PAGE] | [-o|--output OUTPUT_FOLDER] | [-v|--verbose]
 
     -h -> Help (this output)
     -p -> Number of pages to retrieve
     -u -> URL Pattern with [[[PAGE_NUM]]] replacing the page numbers in the url
-    -s -> Start page. Default is 1. Set to a higher number to start capture from a different page
+    -s -> Optional start page. Default is 1. Set to a higher number to start capture from a different page
+    -o -> Optional output folder path. Default is 'slideshare-output'
+    -v -> Increase verbosity log output
 
     Example Usage:
-    $ node slideshare.js -p 47 -u https://image.slidesharecdn.com/physicalpropertiesofdentalmaterials-180214150135/95/physical-properties-of-dental-materials-[[[PAGE_NUM]]]-638.jpg?cb=1544018344
+    $ slideshare -p 47 -u https://image.slidesharecdn.com/physicalpropertiesofdentalmaterials-180214150135/95/physical-properties-of-dental-materials-[[[PAGE_NUM]]]-638.jpg?cb=1544018344
     `);
     process.exit(0);
 }
@@ -69,9 +71,9 @@ if(START_PAGE < 1) {
 }
 
 
-const QUIET = getVerboseArgument(process.argv) ? '' : '--quiet';
+const QUIET = getVerboseArgument(process.argv) ? '' : '--silent';
 const OUTPUT_FOLDER = getOutputFolderArgument(process.argv);
-const cmd = `wget ${QUIET} --no-check-certificate ${URL_PATTERN} -O ${OUTPUT_FOLDER}/[[[PAGE_NUM]]].jpg`;
+const cmd = `curl -L ${URL_PATTERN} -o ${OUTPUT_FOLDER}/[[[PAGE_NUM]]].jpg`;
 const cmds = [];
 
 for (var i = parseInt(START_PAGE); i <= parseInt(NUM_PAGES); i++) {
@@ -84,7 +86,7 @@ console.log('Capturing total number of pages: ' + NUM_PAGES);
 const fs = require('fs');
 const path = require("path");
 if (!fs.existsSync(OUTPUT_FOLDER))
-    fs.mkdirSync(path.join(__dirname, OUTPUT_FOLDER));
+    fs.mkdirSync(OUTPUT_FOLDER);
 
 (async () => {
     if(getVerboseArgument(process.argv))
