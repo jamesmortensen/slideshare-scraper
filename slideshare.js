@@ -31,6 +31,10 @@ function getHelpArgument(argsArr) {
     return argsArr.includes('-h') || argsArr.includes('--help');
 }
 
+function getDownloadCmdArgument(argsArr) {
+    return argsArr.includes('--use-wget');
+}
+
 function argsValue(argsArr, shortForm, longForm, defaultValue) {
     return argsArr.reduce((acc, elem, index, array) => {
         if ((array[index - 1] === shortForm || array[index - 1] === longForm))
@@ -46,7 +50,7 @@ const START_PAGE = getStartPageArgument(process.argv);
 if (getHelpArgument(process.argv) || NUM_PAGES === undefined || URL_PATTERN === undefined) {
     console.log(`
 Usage: 
-    slideshare [-h|--help] | -p|--pages NUM_PAGES | -u|--url-pattern URL_PATTERN | [-s|--start-page START_PAGE] | [-o|--output OUTPUT_FOLDER] | [-v|--verbose]
+    slideshare [-h|--help] | -p|--pages NUM_PAGES | -u|--url-pattern URL_PATTERN | [-s|--start-page START_PAGE] | [-o|--output OUTPUT_FOLDER] | [-v|--verbose] | [--use-wget]
 
     -h -> Help (this output)
     -p -> Number of pages to retrieve
@@ -54,6 +58,7 @@ Usage:
     -s -> Optional start page. Default is 1. Set to a higher number to start capture from a different page
     -o -> Optional output folder path. Default is 'slideshare-output'
     -v -> Increase verbosity log output
+    --use-wget -> Optionally use wget internally instead of curl
 
     Example Usage:
     $ slideshare -p 47 -u https://image.slidesharecdn.com/physicalpropertiesofdentalmaterials-180214150135/95/physical-properties-of-dental-materials-[[[PAGE_NUM]]]-638.jpg?cb=1544018344
@@ -71,9 +76,12 @@ if(START_PAGE < 1) {
 }
 
 
-const QUIET = getVerboseArgument(process.argv) ? '' : '--silent';
+const QUIET = getVerboseArgument(process.argv) ? '' : '--quiet';
+const SILENT = getVerboseArgument(process.argv) ? '' : '--silent';
 const OUTPUT_FOLDER = getOutputFolderArgument(process.argv);
-const cmd = `curl -L ${URL_PATTERN} -o ${OUTPUT_FOLDER}/[[[PAGE_NUM]]].jpg`;
+const cmd = getDownloadCmdArgument(process.argv)
+    ? `wget ${QUIET} --no-check-certificate ${URL_PATTERN} -O ${OUTPUT_FOLDER}/[[[PAGE_NUM]]].jpg`
+    : `curl ${SILENT} -L ${URL_PATTERN} -o ${OUTPUT_FOLDER}/[[[PAGE_NUM]]].jpg`;
 const cmds = [];
 
 for (var i = parseInt(START_PAGE); i <= parseInt(NUM_PAGES); i++) {
