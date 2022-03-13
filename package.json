@@ -1,5 +1,5 @@
 {
-  "name": "slideshare",
+  "name": "slideshare-scraper",
   "version": "0.0.1",
   "description": "CLI command line tool to scrape pages from Slideshare and use ImageMagick to convert the images to a PDF.",
   "main": "slideshare.js",
@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/jamesmortensen/slideshare-scraper/issues"
   },
-  "homepage": "https://github.com/jamesmortensen/slideshare-scraper#readme"
+  "homepage": "https://github.com/jamesmortensen/slideshare-scraper#readme",
+  "dependencies": {
+    "executely": "0.0.3"
+  }
 }

@@ -13,10 +13,10 @@
             ],
             "program": "${workspaceFolder}/slideshare.js",
             "args": [
-                "-p", "134",
+                "-p", "3",
                 "-s", "2",
                 "-u", "https://image.slidesharecdn.com/4-191104091852/95/4-dental-waxes-and-dental-investments-[[[PAGE_NUM]]]-638.jpg?cb=1572859430",
-                "-v"
+                "-vv"
             ]
         }
     ]

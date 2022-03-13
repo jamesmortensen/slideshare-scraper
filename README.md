@@ -41,5 +41,4 @@ You can use the Node.js debugger and the launch.json config to step through the 
 
 ## License
 
-MIT License
-
+Copywright (c) James Mortensen, 2021-2022 MIT License

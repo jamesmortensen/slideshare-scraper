@@ -4,7 +4,7 @@
  * the slides as images. Afterwards, we use ImageMagick to convert them into a single
  * PDF file.
  */
-const { spawn } = require('child_process');
+const executely = require('executely');
 
 
 function getNumPagesArgument(argsArr) {
@@ -24,7 +24,13 @@ function getOutputFolderArgument(argsArr) {
 }
 
 function getVerboseArgument(argsArr) {
-    return argsArr.includes('-v') || argsArr.includes('--verbose');
+    return argsArr.includes('-v')
+        || argsArr.includes('--verbose')
+        || argsArr.includes('-vv');
+}
+
+function getVerboseVerboseArgument(argsArr) {
+    return argsArr.includes('-vv');
 }
 
 function getHelpArgument(argsArr) {
@@ -66,11 +72,11 @@ Usage:
     process.exit(0);
 }
 
-if(NUM_PAGES < 1) {
+if (NUM_PAGES < 1) {
     console.error('NUM_PAGES must be greater than 0');
     process.exit(1);
 }
-if(START_PAGE < 1) {
+if (START_PAGE < 1) {
     console.error('START_PAGE must be greater than 0');
     process.exit(1);
 }
@@ -97,16 +103,13 @@ if (!fs.existsSync(OUTPUT_FOLDER))
     fs.mkdirSync(OUTPUT_FOLDER);
 
 (async () => {
-    if(getVerboseArgument(process.argv))
+    if (getVerboseArgument(process.argv))
         console.log('map page numbers to the URL pattern: ' + cmd);
     try {
         await Promise.all(
-            cmds.map(cmd =>
-                execute(cmd, false)
-                //console.log('command: ' + cmd)
-            )
+            cmds.map(cmd => execute(cmd))
         ).then(() => {
-            execute(`convert ${OUTPUT_FOLDER}/*.jpg -auto-orient ${OUTPUT_FOLDER}/slides.pdf`, true);
+            execute(`convert ${OUTPUT_FOLDER}/*.jpg -auto-orient ${OUTPUT_FOLDER}/slides.pdf`);
         }).then(() => {
             console.log('Done!');
         });
@@ -115,43 +118,12 @@ if (!fs.existsSync(OUTPUT_FOLDER))
     }
 })();
 
-function execute(cmd, stdoutEnabled) {
-    if(getVerboseArgument(process.argv))
+function execute(cmd) {
+    const USE_EXECFILE = true;
+    const opts = { stdoutEnabled: USE_EXECFILE, stderrEnabled: false };
+    if (getVerboseArgument(process.argv))
         console.log('execute command: ' + cmd);
-
-    stdoutEnabled = typeof (stdoutEnabled) === 'undefined' ? false : stdoutEnabled;
-    return new Promise((resolve, reject) => {
-        const process = executeProcess(cmd, stdoutEnabled);
-
-        if (process.stdout)
-            process.stdout.on('data', (output) => {
-                console.log('launcher: ' + output);
-            });
-
-        process.on('close', (code) => {
-            if (code !== 0)
-                reject(code);
-            else
-                resolve(code);
-        });
-    });
-}
-
-function executeProcess(cmd, stdoutEnabled) {
-    const { spawn } = require('child_process');
-    const { execFile } = require('child_process');
-    if (stdoutEnabled)
-        return spawn(
-            cmd.split(' ')[0],
-            cmd.split(' ').filter((arg, index) => {
-                if (index != 0)
-                    return arg;
-            }), { stdio: 'inherit', env: { ...process.env } });
-    else
-        return execFile(
-            cmd.split(' ')[0],
-            cmd.split(' ').filter((arg, index) => {
-                if (index != 0)
-                    return arg;
-            }), { shell: '/bin/bash' });
+    if(getVerboseVerboseArgument(process.argv))
+        opts.stderrEnabled = true;
+    return executely.execute(cmd, opts);
 }
