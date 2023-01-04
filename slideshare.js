@@ -29,6 +29,10 @@ function getVerboseArgument(argsArr) {
         || argsArr.includes('-vv');
 }
 
+function getVersionNumber(argsArr) {
+    return argsArr.includes('--version')
+}
+
 function getVerboseVerboseArgument(argsArr) {
     return argsArr.includes('-vv');
 }
@@ -49,9 +53,24 @@ function argsValue(argsArr, shortForm, longForm, defaultValue) {
     }, defaultValue);
 }
 
+function getFormattedNumber(i) {
+    return getNumberRecurs('' + i);
+}
+
+function getNumberRecurs(i) {
+    return i.length < 6
+         ? getNumberRecurs('0' + i)
+         : i;
+}
+
 const NUM_PAGES = getNumPagesArgument(process.argv);
 const URL_PATTERN = getUrlPatternArgument(process.argv);
 const START_PAGE = getStartPageArgument(process.argv);
+
+if(getVersionNumber(process.argv)) {
+    console.log('v' + require('./package.json').version);
+    process.exit(0);
+}
 
 if (getHelpArgument(process.argv) || NUM_PAGES === undefined || URL_PATTERN === undefined) {
     console.log(`
@@ -65,6 +84,7 @@ Usage:
     -o -> Optional output folder path. Default is 'slideshare-output'
     -v -> Increase verbosity log output
     --use-wget -> Optionally use wget internally instead of curl
+    --version -> Show version number 
 
     Example Usage:
     $ slideshare -p 47 -u https://image.slidesharecdn.com/physicalpropertiesofdentalmaterials-180214150135/95/physical-properties-of-dental-materials-[[[PAGE_NUM]]]-638.jpg?cb=1544018344
@@ -91,7 +111,7 @@ const cmd = getDownloadCmdArgument(process.argv)
 const cmds = [];
 
 for (var i = parseInt(START_PAGE); i <= parseInt(NUM_PAGES); i++) {
-    cmds.push(cmd.replace('[[[PAGE_NUM]]]', i).replace('[[[PAGE_NUM]]]', i < 10 ? '0' + i : i));
+    cmds.push(cmd.replace('[[[PAGE_NUM]]]', i).replace('[[[PAGE_NUM]]]', getFormattedNumber(i)));
 }
 
 console.log('Starting with page ' + START_PAGE);
