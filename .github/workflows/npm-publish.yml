@@ -10,30 +10,5 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x, 19.x]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm test
+    uses: jamesmortensen/npm-publish-workflow/.github/workflows/npm-publish-workflow.yml@main
 
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm run test:build
-      - run: cd build && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
